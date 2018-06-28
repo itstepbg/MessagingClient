@@ -7,6 +7,7 @@ import java.util.Scanner;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
+import models.network.MessageType;
 import models.network.NetworkMessage;
 import util.Logger;
 import util.Sha1Hash;
@@ -19,13 +20,29 @@ public class Main {
 	private static DataOutputStream outToServer = null;
 	
 	public static void main(String[] args) {
-		
 		initSocket();
-		
+
 		login();
 		
-		closeSocket();
+		logout();
 		
+		closeSocket();		
+	}
+
+	private static void logout() {
+		NetworkMessage logoutMessage = new NetworkMessage();
+		logoutMessage.setType(MessageType.LOGOUT);
+		
+		String logoutMessageXml = serializeMessage(logoutMessage);
+		
+		Logger.logMessage(logoutMessageXml);
+		
+		try {
+			outToServer.writeBytes(logoutMessageXml + "\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -54,6 +71,7 @@ public class Main {
 		
 		NetworkMessage networkMessage = new NetworkMessage();
 		
+		networkMessage.setType(MessageType.LOGIN);
 		networkMessage.setActor(userName);
 		String hashPassword = Sha1Hash.generateHash(password);
 		networkMessage.setPasswordHash(hashPassword);
@@ -86,7 +104,7 @@ public class Main {
 
 	private static void initSocket() {
 		try {
-			communicationSocket = new Socket("localhost", port);
+			communicationSocket = new Socket("192.168.100.12", port);
 			System.out.println("Connected localhost in port " + port);
 			
 			outToServer = new DataOutputStream(communicationSocket.getOutputStream());
@@ -101,6 +119,7 @@ public class Main {
 	
 	private static void closeSocket() {
 		try {
+			outToServer.close();
 			communicationSocket.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
