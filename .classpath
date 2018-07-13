@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.45.jar"/>
 	<classpathentry kind="lib" path="lib/simple-xml-2.7.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MessagingLibrary"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

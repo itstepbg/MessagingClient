@@ -3,16 +3,19 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
-import models.network.MessageType;
-import models.network.NetworkMessage;
-import util.Logger;
-import util.Sha1Hash;
+import library.models.network.MessageType;
+import library.models.network.NetworkMessage;
+import library.util.MessagingLogger;
+import library.util.Sha1Hash;
 
 public class Main {
+	
+	private static Logger logger = MessagingLogger.getLogger();
 	
 	private static Socket communicationSocket;
 	private static int port = 3000;
@@ -24,9 +27,9 @@ public class Main {
 
 		login();
 		
-		logout();
+		//logout();
 		
-		closeSocket();		
+		closeSocket();
 	}
 
 	private static void logout() {
@@ -35,7 +38,7 @@ public class Main {
 		
 		String logoutMessageXml = serializeMessage(logoutMessage);
 		
-		Logger.logMessage(logoutMessageXml);
+		logger.info(logoutMessageXml);
 		
 		try {
 			outToServer.writeBytes(logoutMessageXml + "\n");
@@ -55,7 +58,7 @@ public class Main {
 		
 		String loginMessageXml = generateLoginMessageXml(userName, password);
 		
-		Logger.logMessage(loginMessageXml);
+		logger.info(loginMessageXml);
 		
 		try {
 			outToServer.writeBytes(loginMessageXml + "\n");
@@ -104,7 +107,7 @@ public class Main {
 
 	private static void initSocket() {
 		try {
-			communicationSocket = new Socket("192.168.100.12", port);
+			communicationSocket = new Socket("localhost", port);
 			System.out.println("Connected localhost in port " + port);
 			
 			outToServer = new DataOutputStream(communicationSocket.getOutputStream());
