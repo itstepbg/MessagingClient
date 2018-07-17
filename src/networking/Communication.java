@@ -49,7 +49,6 @@ public class Communication implements CommunicationInterface {
 		if (!communicationSocket.isClosed()) {
 			try {
 				communicationSocket.close();
-
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
