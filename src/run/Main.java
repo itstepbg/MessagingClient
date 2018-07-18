@@ -66,14 +66,6 @@ public class Main {
 		}
 	}
 
-	private static void logout() {
-		NetworkMessage logoutMessage = new NetworkMessage();
-		logoutMessage.setType(MessageType.LOGOUT);
-
-		messagingManager.getCommunication().sendMessage(logoutMessage);
-		messagingManager.getCommunication().closeCommunication();
-	}
-
 	private static void createAccount() {
 		System.out.println("Please enter new user name:");
 		String userName = sc.nextLine();
@@ -93,6 +85,13 @@ public class Main {
 		String password = sc.nextLine();
 
 		sendLoginMessage(userName, password);
+	}
+
+	private static void logout() {
+		NetworkMessage logoutMessage = new NetworkMessage();
+		logoutMessage.setType(MessageType.LOGOUT);
+
+		messagingManager.getCommunication().sendMessage(logoutMessage);
 	}
 
 	private static void sendCreateAccountMessage(String userName, String password, String email) {

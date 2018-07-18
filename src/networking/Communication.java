@@ -34,7 +34,6 @@ public class Communication implements CommunicationInterface {
 	@Override
 	public void handleMessage(NetworkMessage networkMessage) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
