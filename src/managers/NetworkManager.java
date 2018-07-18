@@ -1,0 +1,21 @@
+package managers;
+
+import java.io.IOException;
+import java.net.Socket;
+
+import library.util.MessagingLogger;
+
+public class NetworkManager {
+
+	public void initSocket(String ipAddress, int port) {
+		try {
+			Socket communicationSocket = new Socket(ipAddress, port);
+			communicationSocket.setSoTimeout(2000);
+			MessagingManager.getInstance().initCommunication(communicationSocket);
+			MessagingLogger.getLogger().info("Connected to " + ipAddress + " on port " + port);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
