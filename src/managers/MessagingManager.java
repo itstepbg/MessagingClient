@@ -2,12 +2,11 @@ package managers;
 
 import java.net.Socket;
 
-import library.networking.CommunicationInterface;
 import networking.Communication;
 
 public class MessagingManager {
 
-	private CommunicationInterface communication = null;
+	private Communication communication = null;
 	private final static MessagingManager instance = new MessagingManager();
 
 	private MessagingManager() {
@@ -17,7 +16,7 @@ public class MessagingManager {
 		return instance;
 	}
 
-	private void setCommunication(CommunicationInterface communication) {
+	private void setCommunication(Communication communication) {
 		this.communication = communication;
 	}
 
@@ -29,7 +28,7 @@ public class MessagingManager {
 		setCommunication(new Communication(communicationSocket));
 	}
 
-	public CommunicationInterface getCommunication() {
+	public Communication getCommunication() {
 		return communication;
 	}
 }

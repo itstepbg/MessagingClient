@@ -10,6 +10,7 @@ import library.util.MessagingLogger;
 import library.util.Sha1Hash;
 import managers.MessagingManager;
 import managers.NetworkManager;
+import managers.UserManager;
 
 public class Main {
 	private static Logger logger = MessagingLogger.getLogger();
@@ -22,22 +23,28 @@ public class Main {
 
 	private static boolean running = true;
 
+	private static Object uiLock = new Object();
+
 	public static void main(String[] args) {
-		networkManager.initSocket("localhost", port);
+		running = networkManager.initSocket("localhost", port);
+		// TODO The UI lock object should be passed in the Communication constructor
+		// instead.
+		messagingManager.getCommunication().setUiLock(uiLock);
 		while (running) {
 			chooseMenuOption();
 		}
 	}
 
 	public static void chooseMenuOption() {
-		// TODO The menu options should be contextual.
-		// TODO Create an UserManager class that holds a reference
-		// to the local User object (null if not logged in yet).
-		// TODO Logout should not stop the application,
-		// there should be a dedicated 'Exit' command.
 		System.out.println();
-		System.out.println("0. Create Account");
-		System.out.println("1. Login");
+		if (UserManager.getInstance().getUser() == null) {
+			System.out.println("1. Create Account");
+			System.out.println("2. Login");
+		} else {
+			System.out.println("1. Upload File");
+			System.out.println("2. Logout");
+		}
+		System.out.println("3. Quit");
 		System.out.println();
 
 		int inputOption = Integer.parseInt(sc.nextLine());
@@ -50,18 +57,34 @@ public class Main {
 	}
 
 	public static void manageUserInput(int inputOption) throws WrongMenuInputException {
-		switch (inputOption) {
-		case 0:
-			createAccount();
-			break;
-		case 1:
-			login();
-			break;
-		case 2:
-			logout();
-			break;
-		default:
-			throw new WrongMenuInputException("Choose a valid menu option!");
+		if (UserManager.getInstance().getUser() == null) {
+			switch (inputOption) {
+			case 1:
+				createAccount();
+				break;
+			case 2:
+				login();
+				break;
+			case 3:
+				quit();
+				break;
+			default:
+				throw new WrongMenuInputException("Choose a valid menu option!");
+			}
+		} else {
+			switch (inputOption) {
+			case 1:
+				uploadFile();
+				break;
+			case 2:
+				logout();
+				break;
+			case 3:
+				quit();
+				break;
+			default:
+				throw new WrongMenuInputException("Choose a valid menu option!");
+			}
 		}
 	}
 
@@ -84,6 +107,8 @@ public class Main {
 		String password = sc.nextLine();
 
 		sendLoginMessage(userName, password);
+
+		waitForNetworking();
 	}
 
 	private static void logout() {
@@ -91,6 +116,18 @@ public class Main {
 		logoutMessage.setType(MessageType.LOGOUT);
 
 		messagingManager.getCommunication().sendMessage(logoutMessage);
+
+		waitForNetworking();
+	}
+
+	private static void quit() {
+		logout();
+		messagingManager.getCommunication().closeCommunication();
+		running = false;
+	}
+
+	private static void uploadFile() {
+		// TODO Auto-generated method stub
 	}
 
 	private static void sendCreateAccountMessage(String userName, String password, String email) {
@@ -114,5 +151,14 @@ public class Main {
 		networkMessage.setPasswordHash(hashPassword);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
+	}
+
+	private static void waitForNetworking() {
+		synchronized (uiLock) {
+			try {
+				uiLock.wait();
+			} catch (InterruptedException e) {
+			}
+		}
 	}
 }
