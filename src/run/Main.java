@@ -38,7 +38,6 @@ public class Main {
 		System.out.println();
 		System.out.println("0. Create Account");
 		System.out.println("1. Login");
-		System.out.println("2. Logout");
 		System.out.println();
 
 		int inputOption = Integer.parseInt(sc.nextLine());

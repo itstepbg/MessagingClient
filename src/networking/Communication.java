@@ -5,13 +5,14 @@ import java.net.Socket;
 import java.util.logging.Logger;
 
 import library.models.network.NetworkMessage;
+import library.networking.CommonCommunication;
 import library.networking.CommunicationInterface;
 import library.networking.CommunicationThreadFactory;
 import library.networking.InputThread;
 import library.networking.OutputThread;
 import library.util.MessagingLogger;
 
-public class Communication implements CommunicationInterface {
+public class Communication extends CommonCommunication implements CommunicationInterface {
 	private static Logger logger = MessagingLogger.getLogger();
 
 	private Socket communicationSocket;
@@ -33,12 +34,21 @@ public class Communication implements CommunicationInterface {
 
 	@Override
 	public void handleMessage(NetworkMessage networkMessage) {
-		// TODO Auto-generated method stub
+		// TODO
 	}
 
 	@Override
 	public void sendMessage(NetworkMessage networkMessage) {
+		updateMessageCounter(networkMessage);
 		outputThread.addMessage(networkMessage);
+
+		switch (networkMessage.getType()) {
+		case LOGIN:
+			addPendingRequest(networkMessage);
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override
