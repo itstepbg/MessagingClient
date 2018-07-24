@@ -41,6 +41,7 @@ public class Main {
 			System.out.println("1. Create Account");
 			System.out.println("2. Login");
 		} else {
+			// TODO Add missing file functionalities.
 			System.out.println("1. Upload File");
 			System.out.println("2. Logout");
 		}

@@ -102,6 +102,7 @@ public class Communication extends CommonCommunication implements CommunicationI
 
 	@Override
 	public void unregisterCommunication() {
+		closeCommunication();
 		UserManager.getInstance().setUser(null);
 	}
 }
