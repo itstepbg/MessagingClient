@@ -79,7 +79,6 @@ public class Communication extends CommonCommunication implements CommunicationI
 		// closed.
 		// This should be replaced when a session persistence mechanic is implemented.
 
-		UserManager.getInstance().setUser(null);
 		heartbeatThread.interrupt();
 
 		if (!communicationSocket.isClosed()) {
@@ -99,5 +98,10 @@ public class Communication extends CommonCommunication implements CommunicationI
 		synchronized (uiLock) {
 			uiLock.notify();
 		}
+	}
+
+	@Override
+	public void unregisterCommunication() {
+		UserManager.getInstance().setUser(null);
 	}
 }
