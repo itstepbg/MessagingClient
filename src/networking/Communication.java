@@ -2,38 +2,20 @@ package networking;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.logging.Logger;
 
 import library.models.data.User;
 import library.models.network.NetworkMessage;
 import library.networking.CommonCommunication;
 import library.networking.CommunicationInterface;
-import library.networking.CommunicationThreadFactory;
-import library.networking.InputThread;
-import library.networking.OutputThread;
-import library.util.MessagingLogger;
 import managers.UserManager;
 
 public class Communication extends CommonCommunication implements CommunicationInterface {
-	private static Logger logger = MessagingLogger.getLogger();
-
-	private Socket communicationSocket;
-	private InputThread inputThread;
-	private OutputThread outputThread;
 
 	private Object uiLock = null;
 
 	public Communication(Socket communicationSocket) {
-		this.communicationSocket = communicationSocket;
-
-		inputThread = CommunicationThreadFactory.createInputThread(communicationSocket);
-		outputThread = CommunicationThreadFactory.createOutputThread(communicationSocket);
-
-		inputThread.setCommunicationListener(this);
-		outputThread.setCommunicationListener(this);
-
-		inputThread.start();
-		outputThread.start();
+		super(communicationSocket);
+		startCommunicationThreads(this);
 	}
 
 	public void setUiLock(Object uiLock) {
@@ -43,6 +25,9 @@ public class Communication extends CommonCommunication implements CommunicationI
 	@Override
 	public void handleMessage(NetworkMessage networkMessage) {
 		switch (networkMessage.getType()) {
+		case HEARTBEAT:
+			heartbeatThread.resetTimeoutBuffer();
+			break;
 		case STATUS_RESPONSE:
 			NetworkMessage request = pendingRequests.get(networkMessage.getMessageId());
 
@@ -95,6 +80,7 @@ public class Communication extends CommonCommunication implements CommunicationI
 		// This should be replaced when a session persistence mechanic is implemented.
 
 		UserManager.getInstance().setUser(null);
+		heartbeatThread.interrupt();
 
 		if (!communicationSocket.isClosed()) {
 			try {
