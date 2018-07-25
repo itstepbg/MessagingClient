@@ -29,27 +29,40 @@ public class Communication extends CommonCommunication implements CommunicationI
 			heartbeatThread.resetTimeoutBuffer();
 			break;
 		case STATUS_RESPONSE:
-			NetworkMessage request = pendingRequests.get(networkMessage.getMessageId());
+			handleStatusResponse(networkMessage);
+			break;
+		default:
+			break;
+		}
+	}
 
-			switch (request.getType()) {
-			case LOGIN:
-				if (networkMessage.getStatus() == NetworkMessage.STATUS_OK) {
-					User currentUser = new User();
-					UserManager.getInstance().setUser(currentUser);
-				} else {
-					// TODO Error in UI.
-				}
+	private void handleStatusResponse(NetworkMessage statusResponse) {
+		NetworkMessage request = pendingRequests.get(statusResponse.getMessageId());
 
-				notifyUiThread();
-				break;
-			case LOGOUT:
-				UserManager.getInstance().setUser(null);
-
-				notifyUiThread();
-				break;
-			default:
-				break;
+		switch (request.getType()) {
+		case CREATE_USER:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				// TODO
+			} else {
+				// TODO Error in UI.
 			}
+
+			notifyUiThread();
+			break;
+		case LOGIN:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				User currentUser = new User();
+				UserManager.getInstance().setUser(currentUser);
+			} else {
+				// TODO Error in UI.
+			}
+
+			notifyUiThread();
+			break;
+		case LOGOUT:
+			UserManager.getInstance().setUser(null);
+
+			notifyUiThread();
 			break;
 		default:
 			break;
@@ -62,6 +75,7 @@ public class Communication extends CommonCommunication implements CommunicationI
 		outputThread.addMessage(networkMessage);
 
 		switch (networkMessage.getType()) {
+		case CREATE_USER:
 		case LOGIN:
 		case LOGOUT:
 			addPendingRequest(networkMessage);

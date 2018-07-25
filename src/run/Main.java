@@ -99,6 +99,8 @@ public class Main {
 		String email = sc.nextLine();
 
 		sendCreateAccountMessage(userName, password, email);
+
+		waitForNetworking();
 	}
 
 	private static void login() {
