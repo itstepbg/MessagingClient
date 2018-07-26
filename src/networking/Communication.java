@@ -1,21 +1,18 @@
 package networking;
 
-import java.io.IOException;
 import java.net.Socket;
 
 import library.models.data.User;
 import library.models.network.NetworkMessage;
 import library.networking.CommonCommunication;
-import library.networking.CommunicationInterface;
 import managers.UserManager;
 
-public class Communication extends CommonCommunication implements CommunicationInterface {
+public class Communication extends CommonCommunication {
 
 	private Object uiLock = null;
 
 	public Communication(Socket communicationSocket) {
 		super(communicationSocket);
-		startCommunicationThreads(this);
 	}
 
 	public void setUiLock(Object uiLock) {
@@ -24,6 +21,8 @@ public class Communication extends CommonCommunication implements CommunicationI
 
 	@Override
 	public void handleMessage(NetworkMessage networkMessage) {
+		super.handleMessage(networkMessage);
+
 		switch (networkMessage.getType()) {
 		case HEARTBEAT:
 			heartbeatThread.resetTimeoutBuffer();
@@ -71,8 +70,7 @@ public class Communication extends CommonCommunication implements CommunicationI
 
 	@Override
 	public void sendMessage(NetworkMessage networkMessage) {
-		updateMessageCounter(networkMessage);
-		outputThread.addMessage(networkMessage);
+		super.sendMessage(networkMessage);
 
 		switch (networkMessage.getType()) {
 		case CREATE_USER:
@@ -85,28 +83,6 @@ public class Communication extends CommonCommunication implements CommunicationI
 		}
 	}
 
-	@Override
-	public void closeCommunication() {
-		logger.info("Closing communication for " + communicationSocket.getInetAddress().getHostAddress());
-
-		// TODO Temporary logic for marking the user as logged out when the socket is
-		// closed.
-		// This should be replaced when a session persistence mechanic is implemented.
-
-		heartbeatThread.interrupt();
-
-		if (!communicationSocket.isClosed()) {
-			try {
-				communicationSocket.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		// TODO Notify UI to stop the application execution.
-	}
-
 	private void notifyUiThread() {
 		// Potential racing condition.
 		synchronized (uiLock) {
@@ -116,7 +92,8 @@ public class Communication extends CommonCommunication implements CommunicationI
 
 	@Override
 	public void unregisterCommunication() {
-		closeCommunication();
+		super.unregisterCommunication();
+
 		UserManager.getInstance().setUser(null);
 	}
 }
