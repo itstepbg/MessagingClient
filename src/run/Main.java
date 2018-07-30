@@ -1,7 +1,9 @@
 package run;
 
+import java.nio.file.Paths;
 import java.util.Scanner;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 
 import library.exceptions.WrongMenuInputException;
 import library.models.network.MessageType;
@@ -130,7 +132,22 @@ public class Main {
 	}
 
 	private static void uploadFile() {
-		// TODO Auto-generated method stub
+		System.out.println("Select file to upload:");
+		String filePath = sc.nextLine();
+
+		// TODO Check whether the file exists.
+		// TODO Choose remote folder.
+
+		filePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.UPLOAD_FILE);
+		networkMessage.setFilePath(Paths.get(filePath).getFileName().toString());
+
+		messagingManager.getCommunication().createFileUploadThread(filePath);
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
 	}
 
 	private static void sendCreateAccountMessage(String userName, String password, String email) {

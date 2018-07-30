@@ -24,9 +24,6 @@ public class Communication extends CommonCommunication {
 		super.handleMessage(networkMessage);
 
 		switch (networkMessage.getType()) {
-		case HEARTBEAT:
-			heartbeatThread.resetTimeoutBuffer();
-			break;
 		case STATUS_RESPONSE:
 			handleStatusResponse(networkMessage);
 			break;
@@ -63,6 +60,16 @@ public class Communication extends CommonCommunication {
 
 			notifyUiThread();
 			break;
+		case UPLOAD_FILE:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				startFileUpload();
+			} else {
+				clearFileUploadThread();
+				// TODO Error in UI.
+			}
+
+			notifyUiThread();
+			break;
 		default:
 			break;
 		}
@@ -76,6 +83,7 @@ public class Communication extends CommonCommunication {
 		case CREATE_USER:
 		case LOGIN:
 		case LOGOUT:
+		case UPLOAD_FILE:
 			addPendingRequest(networkMessage);
 			break;
 		default:
