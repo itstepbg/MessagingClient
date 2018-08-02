@@ -4,14 +4,14 @@ import java.net.Socket;
 
 import library.models.data.User;
 import library.models.network.NetworkMessage;
-import library.networking.CommonCommunication;
+import library.networking.Communication;
 import managers.UserManager;
 
-public class Communication extends CommonCommunication {
+public class ClientCommunication extends Communication {
 
 	private Object uiLock = null;
 
-	public Communication(Socket communicationSocket) {
+	public ClientCommunication(Socket communicationSocket) {
 		super(communicationSocket);
 	}
 
@@ -24,6 +24,9 @@ public class Communication extends CommonCommunication {
 		super.handleMessage(networkMessage);
 
 		switch (networkMessage.getType()) {
+		case SALT:
+			salt = networkMessage.getText();
+			break;
 		case STATUS_RESPONSE:
 			handleStatusResponse(networkMessage);
 			break;

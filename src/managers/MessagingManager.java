@@ -2,11 +2,11 @@ package managers;
 
 import java.net.Socket;
 
-import networking.Communication;
+import networking.ClientCommunication;
 
 public class MessagingManager {
 
-	private Communication communication = null;
+	private ClientCommunication communication = null;
 	private final static MessagingManager instance = new MessagingManager();
 
 	private MessagingManager() {
@@ -16,7 +16,7 @@ public class MessagingManager {
 		return instance;
 	}
 
-	private void setCommunication(Communication communication) {
+	private void setCommunication(ClientCommunication communication) {
 		this.communication = communication;
 	}
 
@@ -25,10 +25,10 @@ public class MessagingManager {
 	}
 
 	public void initCommunication(Socket communicationSocket) {
-		setCommunication(new Communication(communicationSocket));
+		setCommunication(new ClientCommunication(communicationSocket));
 	}
 
-	public Communication getCommunication() {
+	public ClientCommunication getCommunication() {
 		return communication;
 	}
 }

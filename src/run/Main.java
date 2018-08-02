@@ -8,8 +8,8 @@ import java.util.regex.Matcher;
 import library.exceptions.WrongMenuInputException;
 import library.models.network.MessageType;
 import library.models.network.NetworkMessage;
+import library.util.Crypto;
 import library.util.MessagingLogger;
-import library.util.Sha1Hash;
 import managers.MessagingManager;
 import managers.NetworkManager;
 import managers.UserManager;
@@ -155,8 +155,9 @@ public class Main {
 
 		networkMessage.setType(MessageType.CREATE_USER);
 		networkMessage.setActor(userName);
-		String hashPassword = Sha1Hash.generateHash(password);
-		networkMessage.setPasswordHash(hashPassword);
+		// Maybe use salting here as well?
+		String passwordHash = Crypto.generateHash(password);
+		networkMessage.setPasswordHash(passwordHash);
 		networkMessage.setEmail(email);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
@@ -167,8 +168,9 @@ public class Main {
 
 		networkMessage.setType(MessageType.LOGIN);
 		networkMessage.setActor(userName);
-		String hashPassword = Sha1Hash.generateHash(password);
-		networkMessage.setPasswordHash(hashPassword);
+		String saltedPassword = Crypto.saltPassword(messagingManager.getCommunication().getSalt(),
+				Crypto.generateHash(password), 1024);
+		networkMessage.setPasswordHash(saltedPassword);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 	}
