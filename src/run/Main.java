@@ -183,7 +183,7 @@ public class Main {
 
 		NetworkMessage networkMessage = new NetworkMessage();
 		networkMessage.setType(MessageType.DELETE_FILE);
-		networkMessage.setFilePath(Paths.get(filePath).getFileName().toString());
+		networkMessage.setFilePath(filePath);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
