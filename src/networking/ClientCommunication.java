@@ -2,9 +2,13 @@ package networking;
 
 import java.net.Socket;
 
+import FTPLibrary.FTPConstants;
 import library.models.data.User;
+import library.models.network.MessageType;
 import library.models.network.NetworkMessage;
 import library.networking.Communication;
+import library.util.Utils;
+import managers.MessagingManager;
 import managers.UserManager;
 
 public class ClientCommunication extends Communication {
@@ -24,6 +28,24 @@ public class ClientCommunication extends Communication {
 		super.handleMessage(networkMessage);
 
 		switch (networkMessage.getType()) {
+		case SERVER_HELLO:
+			if (networkMessage.getText().equals(FTPConstants.SERVER_HELLO_MESSAGE)) {
+				logger.info("Hello message from server received with text: " + networkMessage.getText());
+				NetworkMessage response = new NetworkMessage();
+				response.setType(MessageType.CLIENT_HELLO);
+				response.setText(FTPConstants.CLIENT_HELLO_MESSAGE);
+				response.setClientFQDN(Utils.getFQDN());
+				sendMessage(response);
+			} else {
+				logger.info("Unsupported protocol version.");
+				MessagingManager.getInstance().removeCommunication();
+			}
+			break;
+		case WELCOME_MESSAGE:
+			if (networkMessage.getClientFQDN().equals(Utils.getFQDN())) {
+				System.out.println("Connection with server established successfully. Handshake done.");
+			}
+			break;
 		case SALT:
 			salt = networkMessage.getText();
 			break;
@@ -83,6 +105,7 @@ public class ClientCommunication extends Communication {
 		super.sendMessage(networkMessage);
 
 		switch (networkMessage.getType()) {
+		case CLIENT_HELLO:
 		case CREATE_USER:
 		case LOGIN:
 		case LOGOUT:
