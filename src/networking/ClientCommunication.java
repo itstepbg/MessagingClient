@@ -68,9 +68,10 @@ public class ClientCommunication extends Communication {
 			break;
 		case UPLOAD_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-
+				startFileUpload();
 			} else {
-
+				clearFileUploadThread();
+				// TODO Error in UI.
 			}
 			notifyUiThread();
 			break;
@@ -80,7 +81,7 @@ public class ClientCommunication extends Communication {
 			} else {
 				logger.info("Directory already exists.");
 			}
-			
+
 			notifyUiThread();
 			break;
 		case DELETE_FILE:
@@ -90,7 +91,7 @@ public class ClientCommunication extends Communication {
 			else {
 				logger.info("The file that you're trying to delete already exists!");
 			}
-			
+
 			notifyUiThread();
 			break;
 		case COPY_FILE:
@@ -100,7 +101,7 @@ public class ClientCommunication extends Communication {
 			else {
 				logger.info("The file that you're trying to copy already exists!");
 			}
-			
+
 			notifyUiThread();
 			break;
 		default:
