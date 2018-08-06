@@ -103,7 +103,6 @@ public class Main {
 		}
 	}
 
-
 	private static void createAccount() {
 		System.out.println("Please enter new user name:");
 		String userName = sc.nextLine();
@@ -204,8 +203,8 @@ public class Main {
 
 		NetworkMessage networkMessage = new NetworkMessage();
 		networkMessage.setType(MessageType.COPY_FILE);
-		networkMessage.setFilePath(Paths.get(sourcePath).getFileName().toString());
-		networkMessage.setNewFilePath(Paths.get(targetPath).getFileName().toString());
+		networkMessage.setFilePath(sourcePath);
+		networkMessage.setNewFilePath(targetPath);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 

@@ -87,8 +87,7 @@ public class ClientCommunication extends Communication {
 		case DELETE_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				logger.info("The file was deleted successfully”");
-			}
-			else {
+			} else {
 				logger.info("The file that you're trying to delete already exists!");
 			}
 
@@ -97,8 +96,7 @@ public class ClientCommunication extends Communication {
 		case COPY_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				logger.info("The file was copied successfully.”");
-			}
-			else {
+			} else {
 				logger.info("The file that you're trying to copy already exists!");
 			}
 
