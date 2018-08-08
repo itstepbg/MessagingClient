@@ -49,6 +49,7 @@ public class Main {
 			System.out.println("2. Delete File");
 			System.out.println("3. Copy File");
 			System.out.println("4. Logout");
+			System.out.println("6. Share File");
 		}
 		System.out.println("5. Quit");
 		System.out.println();
@@ -97,6 +98,9 @@ public class Main {
 			case 5:
 				quit();
 				break;
+			case 6:
+				shareFile();
+				break;
 			default:
 				throw new WrongMenuInputException("Choose a valid menu option!");
 			}
@@ -113,6 +117,23 @@ public class Main {
 		String email = sc.nextLine();
 
 		sendCreateAccountMessage(userName, password, email);
+
+		waitForNetworking();
+	}
+
+	private static void shareFile() {
+		System.out.println("Please enter user name you want to share file with:");
+		String userNameSharedTo = sc.nextLine();
+		System.out.println("Please enter file path of the file you want to share:");
+		String filePath = sc.nextLine();
+
+		NetworkMessage networkMessage = new NetworkMessage();
+
+		networkMessage.setType(MessageType.SHARE_FILE);
+		networkMessage.setUser(userNameSharedTo);
+		networkMessage.setFilePath(filePath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
 
 		waitForNetworking();
 	}
@@ -144,19 +165,23 @@ public class Main {
 	}
 
 	private static void uploadFile() {
-		System.out.println("Select file to upload:");
-		String filePath = sc.nextLine();
+		System.out.println("Select file to upload from local path:");
+		String downloadFromfilePath = sc.nextLine();
+
+		System.out.println("Select file to upload to remote path:");
+		String uploadTofilePath = sc.nextLine();
 
 		// TODO Check whether the file exists.
 		// TODO Choose remote folder.
 
-		filePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+		downloadFromfilePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
 
 		NetworkMessage networkMessage = new NetworkMessage();
 		networkMessage.setType(MessageType.UPLOAD_FILE);
-		networkMessage.setFilePath(Paths.get(filePath).getFileName().toString());
+		networkMessage.setFilePath(Paths.get(uploadTofilePath).toString());
 
-		messagingManager.getCommunication().createFileUploadThread(filePath);
+		messagingManager.getCommunication().createFileUploadThread(downloadFromfilePath);
+		System.out.println(downloadFromfilePath);
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
 		waitForNetworking();

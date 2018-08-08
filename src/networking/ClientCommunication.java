@@ -102,6 +102,15 @@ public class ClientCommunication extends Communication {
 
 			notifyUiThread();
 			break;
+		case SHARE_FILE:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				logger.info("The file was shared successfully.”");
+			} else {
+				logger.info("The file that you're trying to share already exists!");
+			}
+
+			notifyUiThread();
+			break;
 		default:
 			break;
 		}
@@ -119,6 +128,7 @@ public class ClientCommunication extends Communication {
 		case DELETE_FILE:
 		case COPY_FILE:
 		case UPLOAD_FILE:
+		case SHARE_FILE:
 			addPendingRequest(networkMessage);
 			break;
 		default:
