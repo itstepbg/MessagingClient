@@ -69,10 +69,12 @@ public class ClientCommunication extends Communication {
 		case UPLOAD_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				startFileUpload();
+				logger.info("File successfully uploaded.");
 			} else {
 				clearFileUploadThread();
-				// TODO Error in UI.
+				logger.info("File failed uploading.");
 			}
+
 			notifyUiThread();
 			break;
 		case CREATE_DIRECTORY:
@@ -88,7 +90,7 @@ public class ClientCommunication extends Communication {
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				logger.info("The file was deleted successfully”");
 			} else {
-				logger.info("The file that you're trying to delete already exists!");
+				logger.info("The file that you're trying to delete doesn't exists!");
 			}
 
 			notifyUiThread();
