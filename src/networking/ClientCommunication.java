@@ -7,9 +7,12 @@ import library.models.data.User;
 import library.models.network.MessageType;
 import library.models.network.NetworkMessage;
 import library.networking.Communication;
+import library.util.ConstantsFTP;
+import library.util.Crypto;
 import library.util.Utils;
 import managers.MessagingManager;
 import managers.UserManager;
+
 
 public class ClientCommunication extends Communication {
 
@@ -27,15 +30,17 @@ public class ClientCommunication extends Communication {
 	public void handleMessage(NetworkMessage networkMessage) {
 		super.handleMessage(networkMessage);
 
+		NetworkMessage responseMessage;
+
 		switch (networkMessage.getType()) {
 		case SERVER_HELLO:
 			if (networkMessage.getText().equals(FTPConstants.SERVER_HELLO_MESSAGE)) {
 				logger.info("Hello message from server received with text: " + networkMessage.getText());
-				NetworkMessage response = new NetworkMessage();
-				response.setType(MessageType.CLIENT_HELLO);
-				response.setText(FTPConstants.CLIENT_HELLO_MESSAGE);
-				response.setClientFQDN(Utils.getFQDN());
-				sendMessage(response);
+				responseMessage = new NetworkMessage();
+				responseMessage.setType(MessageType.CLIENT_HELLO);
+				responseMessage.setText(FTPConstants.CLIENT_HELLO_MESSAGE);
+				responseMessage.setClientFQDN(Utils.getFQDN());
+				sendMessage(responseMessage);
 			} else {
 				logger.info("Unsupported protocol version.");
 				MessagingManager.getInstance().removeCommunication();
@@ -44,8 +49,39 @@ public class ClientCommunication extends Communication {
 		case WELCOME_MESSAGE:
 			if (networkMessage.getClientFQDN().equals(Utils.getFQDN())) {
 				System.out.println("Connection with server established successfully. Handshake done.");
+				logger.info("Connection with server established successfully. Handshake done.");
+
+				responseMessage = new NetworkMessage();
+				responseMessage.setType(MessageType.REGISTER_PLAIN);
+				sendMessage(responseMessage);
 			}
 			break;
+
+		case CONTINUE_WITH_PASS:
+			//here we get the salting parameters from server and send registration password to authenticate
+			String salt = networkMessage.getSalt();
+			int iterations = Integer.valueOf(networkMessage.getIterations());
+			String registerPassword = Crypto.saltPassword(salt, ConstantsFTP.REGISTRATION_PASS, iterations);
+
+			responseMessage = new NetworkMessage();
+			responseMessage.setType(MessageType.REGISTER_PASS);
+			responseMessage.setText(registerPassword);
+
+			logger.info("Registration password hash generatied.");
+			System.out.println("Registration password hash generatied.");
+			sendMessage(responseMessage);
+
+			break;
+
+		case REGISTRATION_ALLOWED:
+			// awaiting client input from the console
+			//TODO maybe we have to create class that will read commands from the console
+			logger.info("The client is authenticated");
+
+			System.out.println("Registration protocol completed.");
+
+			break;
+
 		case SALT:
 			salt = networkMessage.getText();
 			break;
@@ -106,6 +142,8 @@ public class ClientCommunication extends Communication {
 
 		switch (networkMessage.getType()) {
 		case CLIENT_HELLO:
+		case REGISTER_PLAIN:
+		case REGISTER_PASS:
 		case CREATE_USER:
 		case LOGIN:
 		case LOGOUT:
