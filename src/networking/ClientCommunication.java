@@ -77,6 +77,17 @@ public class ClientCommunication extends Communication {
 
 			notifyUiThread();
 			break;
+		case DOWNLOAD_FILE:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				startFileUpload();
+				logger.info("File successfully downloaded.");
+			} else {
+				clearFileUploadThread();
+				logger.info("File failed downloading.");
+			}
+
+			notifyUiThread();
+			break;
 		case CREATE_DIRECTORY:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				logger.info("Directory successfully created.");
@@ -100,6 +111,24 @@ public class ClientCommunication extends Communication {
 				logger.info("The file was copied successfully.”");
 			} else {
 				logger.info("The file that you're trying to copy already exists!");
+			}
+
+			notifyUiThread();
+			break;
+		case MOVE_FILE:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				logger.info("The file was moved successfully.”");
+			} else {
+				logger.info("The file that you're trying to move already exists in the target directory!");
+			}
+
+			notifyUiThread();
+			break;
+		case RENAME_FILE:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				logger.info("The file was renamed successfully.”");
+			} else {
+				logger.info("The directory already consists a file with this name!");
 			}
 
 			notifyUiThread();
@@ -129,7 +158,10 @@ public class ClientCommunication extends Communication {
 		case CREATE_DIRECTORY:
 		case DELETE_FILE:
 		case COPY_FILE:
+		case MOVE_FILE:
+		case RENAME_FILE:
 		case UPLOAD_FILE:
+		case DOWNLOAD_FILE:
 		case SHARE_FILE:
 			addPendingRequest(networkMessage);
 			break;

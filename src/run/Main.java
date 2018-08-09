@@ -48,10 +48,14 @@ public class Main {
 			System.out.println("1. Upload File");
 			System.out.println("2. Delete File");
 			System.out.println("3. Copy File");
-			System.out.println("4. Logout");
-			System.out.println("6. Share File");
+			System.out.println("4. Move File");
+			System.out.println("5. Rename File");
+			System.out.println("6. Download File");
+			System.out.println("7. List Files");
+			System.out.println("8. Share File");
+			System.out.println("9. Logout");
 		}
-		System.out.println("5. Quit");
+		System.out.println("10. Quit");
 		System.out.println();
 
 		int inputOption = Integer.parseInt(sc.nextLine());
@@ -93,13 +97,24 @@ public class Main {
 				copyFile();
 				break;
 			case 4:
-				logout();
+				moveFile();
 				break;
 			case 5:
-				quit();
+				renameFile();
 				break;
 			case 6:
+				downloadFile();
+				break;
+			case 7:
+				listFiles();
+				break;
+			case 8:
 				shareFile();
+			case 9:
+				logout();
+				break;
+			case 10:
+				quit();
 				break;
 			default:
 				throw new WrongMenuInputException("Choose a valid menu option!");
@@ -187,6 +202,25 @@ public class Main {
 		waitForNetworking();
 	}
 
+	private static void downloadFile() {
+		System.out.println("Select file to download from remote path:");
+		String filePath = sc.nextLine();
+
+		filePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		System.out.println("Select file to download to local path:");
+		String localPath = sc.nextLine();
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.DOWNLOAD_FILE);
+		networkMessage.setFilePath(filePath);
+
+		messagingManager.getCommunication().createFileDownloadThread(localPath);
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
 	private static void createNewDirectory() {
 		System.out.println("Please enter directory name:");
 		String folderName = sc.nextLine();
@@ -230,6 +264,58 @@ public class Main {
 		networkMessage.setType(MessageType.COPY_FILE);
 		networkMessage.setFilePath(sourcePath);
 		networkMessage.setNewFilePath(targetPath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void moveFile() {
+		System.out.println("Enter directory/file name you want to move :");
+		String sourcePath = sc.nextLine();
+
+		sourcePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		System.out.println("Enter directory/file name in which you'd like to move the file :");
+		String targetPath = sc.nextLine();
+
+		targetPath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.MOVE_FILE);
+		networkMessage.setFilePath(sourcePath);
+		networkMessage.setNewFilePath(targetPath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void renameFile() {
+		System.out.println("Enter directory/file name you want to rename :");
+		String path = sc.nextLine();
+
+		path.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		System.out.println("Enter directory and the new file name with which to rename the file :");
+		String newPath = sc.nextLine();
+
+		newPath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.RENAME_FILE);
+		networkMessage.setFilePath(path);
+		networkMessage.setNewFilePath(newPath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void listFiles() {
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.LIST_FILES);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
