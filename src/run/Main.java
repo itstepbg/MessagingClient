@@ -1,6 +1,7 @@
 package run;
 
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Scanner;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -166,11 +167,16 @@ public class Main {
 	private static void sendLoginMessage(String userName, String password) {
 		NetworkMessage networkMessage = new NetworkMessage();
 
+		int randomIterations = Crypto.getRandomIterations();
 		networkMessage.setType(MessageType.LOGIN);
 		networkMessage.setActor(userName);
-		String saltedPassword = Crypto.saltPassword(messagingManager.getCommunication().getSalt(),
-				Crypto.generateHash(password), 1024);
-		networkMessage.setPasswordHash(saltedPassword);
+		networkMessage.setIterations(randomIterations);
+		
+		String saltedPass = Crypto.saltPassword(messagingManager.getCommunication().getSalt(), 
+				Crypto.generateHash(password), randomIterations) ;
+		String encodedPassBase64 = Base64.getEncoder().encodeToString(saltedPass.getBytes());
+		
+		networkMessage.setPasswordHash(encodedPassBase64);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 	}

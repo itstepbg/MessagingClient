@@ -1,6 +1,7 @@
 package networking;
 
 import java.net.Socket;
+import java.util.Base64;
 
 import FTPLibrary.FTPConstants;
 import library.models.data.User;
@@ -59,7 +60,11 @@ public class ClientCommunication extends Communication {
 
 		case CONTINUE_WITH_PASS:
 			//here we get the salting parameters from server and send registration password to authenticate
-			salt = networkMessage.getSalt();
+
+			String saltEncodedBase64 = networkMessage.getSalt();
+			// here we decode the salt from the server
+			salt = new String (Base64.getDecoder().decode(saltEncodedBase64.getBytes()));
+
 			int iterations = Integer.valueOf(networkMessage.getIterations());
 			String registerPassword = Crypto.saltPassword(salt, ConstantsFTP.REGISTRATION_PASS, iterations);
 
@@ -82,9 +87,6 @@ public class ClientCommunication extends Communication {
 
 			break;
 
-//		case SALT:
-//			salt = networkMessage.getText();
-//			break;
 		case STATUS_RESPONSE:
 			handleStatusResponse(networkMessage);
 			break;
