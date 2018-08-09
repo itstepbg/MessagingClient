@@ -147,6 +147,7 @@ public class Main {
 		networkMessage.setType(MessageType.SHARE_FILE);
 		networkMessage.setUser(userNameSharedTo);
 		networkMessage.setFilePath(filePath);
+		networkMessage.setFileName(Paths.get(filePath).getFileName().toString());
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
