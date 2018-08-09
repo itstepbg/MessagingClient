@@ -59,9 +59,9 @@ public class ClientCommunication extends Communication {
 
 		case CONTINUE_WITH_PASS:
 			//here we get the salting parameters from server and send registration password to authenticate
-			String salt = networkMessage.getSalt();
+			String registrationSalt = networkMessage.getSalt();
 			int iterations = Integer.valueOf(networkMessage.getIterations());
-			String registerPassword = Crypto.saltPassword(salt, ConstantsFTP.REGISTRATION_PASS, iterations);
+			String registerPassword = Crypto.saltPassword(registrationSalt, ConstantsFTP.REGISTRATION_PASS, iterations);
 
 			responseMessage = new NetworkMessage();
 			responseMessage.setType(MessageType.REGISTER_PASS);
