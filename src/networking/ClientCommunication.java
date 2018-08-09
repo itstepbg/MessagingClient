@@ -59,16 +59,16 @@ public class ClientCommunication extends Communication {
 
 		case CONTINUE_WITH_PASS:
 			//here we get the salting parameters from server and send registration password to authenticate
-			String registrationSalt = networkMessage.getSalt();
+			salt = networkMessage.getSalt();
 			int iterations = Integer.valueOf(networkMessage.getIterations());
-			String registerPassword = Crypto.saltPassword(registrationSalt, ConstantsFTP.REGISTRATION_PASS, iterations);
+			String registerPassword = Crypto.saltPassword(salt, ConstantsFTP.REGISTRATION_PASS, iterations);
 
 			responseMessage = new NetworkMessage();
 			responseMessage.setType(MessageType.REGISTER_PASS);
 			responseMessage.setText(registerPassword);
 
-			logger.info("Registration password hash generatied.");
-			System.out.println("Registration password hash generatied.");
+			logger.info("Registration password hash generated.");
+			System.out.println("Registration password hash generated.");
 			sendMessage(responseMessage);
 
 			break;
@@ -82,9 +82,9 @@ public class ClientCommunication extends Communication {
 
 			break;
 
-		case SALT:
-			salt = networkMessage.getText();
-			break;
+//		case SALT:
+//			salt = networkMessage.getText();
+//			break;
 		case STATUS_RESPONSE:
 			handleStatusResponse(networkMessage);
 			break;

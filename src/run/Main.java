@@ -157,7 +157,6 @@ public class Main {
 		networkMessage.setActor(userName);
 		// Maybe use salting here as well?
 		String passwordHash = Crypto.generateHash(password);
-		System.out.println(passwordHash);
 		networkMessage.setPasswordHash(passwordHash);
 		networkMessage.setEmail(email);
 
