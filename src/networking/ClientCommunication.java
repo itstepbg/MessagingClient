@@ -4,6 +4,7 @@ import java.net.Socket;
 import java.util.Base64;
 
 import FTPLibrary.FTPConstants;
+import library.exceptions.WrongMenuInputException;
 import library.models.data.User;
 import library.models.network.MessageType;
 import library.models.network.NetworkMessage;
@@ -13,11 +14,13 @@ import library.util.Crypto;
 import library.util.Utils;
 import managers.MessagingManager;
 import managers.UserManager;
+import run.Main;
 
 
 public class ClientCommunication extends Communication {
 
 	private Object uiLock = null;
+	private static volatile boolean processing = false;
 
 	public ClientCommunication(Socket communicationSocket) {
 		super(communicationSocket);
@@ -25,6 +28,10 @@ public class ClientCommunication extends Communication {
 
 	public void setUiLock(Object uiLock) {
 		this.uiLock = uiLock;
+	}
+
+	public static void setProcessing(boolean processing) {
+		ClientCommunication.processing = processing;
 	}
 
 	@Override
@@ -52,9 +59,6 @@ public class ClientCommunication extends Communication {
 				System.out.println("Connection with server established successfully. Handshake done.");
 				logger.info("Connection with server established successfully. Handshake done.");
 
-				responseMessage = new NetworkMessage();
-				responseMessage.setType(MessageType.REGISTER_PLAIN);
-				sendMessage(responseMessage);
 			}
 			break;
 
@@ -85,6 +89,7 @@ public class ClientCommunication extends Communication {
 
 			System.out.println("Registration protocol completed.");
 
+			Main.getUserRegistrationParameter();
 			break;
 
 		case STATUS_RESPONSE:
@@ -99,19 +104,21 @@ public class ClientCommunication extends Communication {
 		NetworkMessage request = pendingRequests.get(statusResponse.getMessageId());
 
 		switch (request.getType()) {
+//		case CREATE_USER:
+//			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+//				// TODO
+//			} else {
+//				// TODO Error in UI.
+//			}
+//
+//			notifyUiThread();
+//			break;
 		case CREATE_USER:
-			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-				// TODO
-			} else {
-				// TODO Error in UI.
-			}
-
-			notifyUiThread();
-			break;
-		case LOGIN:
-			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+			if (statusResponse.getStatus() != NetworkMessage.STATUS_OK) {
 				User currentUser = new User();
 				UserManager.getInstance().setUser(currentUser);
+				System.out.println("set user!");
+				processing = false;
 			} else {
 				// TODO Error in UI.
 			}
