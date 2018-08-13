@@ -3,6 +3,7 @@ package networking;
 import java.net.Socket;
 import java.util.logging.Logger;
 
+import library.models.data.Directory;
 import library.models.data.User;
 import library.models.network.NetworkMessage;
 import library.networking.Communication;
@@ -133,6 +134,17 @@ public class ClientCommunication extends Communication {
 
 			notifyUiThread();
 			break;
+		case LIST_FILES:
+			listFiles = new Directory();
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				listFiles = statusResponse.getListFiles();
+			} else {
+				logger.info("Lost information about your remote directory.");
+			}
+
+			listFiles.printDirectories();
+			listFiles.printFiles();
+			break;
 		case SHARE_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				logger.info("The file was shared successfully.”");
@@ -162,6 +174,7 @@ public class ClientCommunication extends Communication {
 		case RENAME_FILE:
 		case UPLOAD_FILE:
 		case DOWNLOAD_FILE:
+		case LIST_FILES:
 		case SHARE_FILE:
 			addPendingRequest(networkMessage);
 			break;
