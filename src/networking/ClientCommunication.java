@@ -100,7 +100,7 @@ public class ClientCommunication extends Communication {
 			break;
 		case DELETE_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-				logger.info("The file was deleted successfully”");
+				logger.info("The file was deleted successfully");
 			} else {
 				logger.info("The file that you're trying to delete doesn't exists!");
 			}
@@ -109,7 +109,7 @@ public class ClientCommunication extends Communication {
 			break;
 		case COPY_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-				logger.info("The file was copied successfully.”");
+				logger.info("The file was copied successfully.");
 			} else {
 				logger.info("The file that you're trying to copy already exists!");
 			}
@@ -118,7 +118,7 @@ public class ClientCommunication extends Communication {
 			break;
 		case MOVE_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-				logger.info("The file was moved successfully.”");
+				logger.info("The file was moved successfully.");
 			} else {
 				logger.info("The file that you're trying to move already exists in the target directory!");
 			}
@@ -127,7 +127,7 @@ public class ClientCommunication extends Communication {
 			break;
 		case RENAME_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-				logger.info("The file was renamed successfully.”");
+				logger.info("The file was renamed successfully.");
 			} else {
 				logger.info("The directory already consists a file with this name!");
 			}
@@ -138,16 +138,19 @@ public class ClientCommunication extends Communication {
 			listFiles = new Directory();
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				listFiles = statusResponse.getListFiles();
+				logger.info("The file was renamed successfully.");
 			} else {
-				logger.info("Lost information about your remote directory.");
+				logger.info("Could not print the information requested!");
 			}
 
 			listFiles.printDirectories();
 			listFiles.printFiles();
+
+			notifyUiThread();
 			break;
 		case SHARE_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-				logger.info("The file was shared successfully.”");
+				logger.info("The file was shared successfully.");
 			} else {
 				logger.info("The file that you're trying to share already exists!");
 			}
