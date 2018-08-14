@@ -36,7 +36,7 @@ public class Main {
 		// TODO The UI lock object should be passed in the Communication constructor
 		// instead.
 		messagingManager.getCommunication().setUiLock(uiLock);
-		ClientCommunication.setProcessing(processing);
+		messagingManager.getCommunication().setProcessing(processing);
 		while (running) {
 			if(!processing) {
 				chooseMenuOption();
@@ -106,7 +106,7 @@ public class Main {
 			case 2:
 				logout();
 				break;
-			case 3:
+			case 4:
 				quit();
 				break;
 			default:

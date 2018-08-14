@@ -20,7 +20,7 @@ import run.Main;
 public class ClientCommunication extends Communication {
 
 	private Object uiLock = null;
-	private static volatile boolean processing = false;
+	private volatile boolean processing = false;
 
 	public ClientCommunication(Socket communicationSocket) {
 		super(communicationSocket);
@@ -30,8 +30,8 @@ public class ClientCommunication extends Communication {
 		this.uiLock = uiLock;
 	}
 
-	public static void setProcessing(boolean processing) {
-		ClientCommunication.processing = processing;
+	public void setProcessing(boolean processing) {
+		this.processing = processing;
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class ClientCommunication extends Communication {
 				logger.info("Master password is not correct");
 
 				closeCommunication();
-				break;
+		break;
 
 		case STATUS_RESPONSE:
 			handleStatusResponse(networkMessage);
