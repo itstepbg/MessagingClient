@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import library.exceptions.WrongMenuInputException;
 import library.models.network.MessageType;
 import library.models.network.NetworkMessage;
+import library.networking.Communication;
 import library.util.Crypto;
 import library.util.MessagingLogger;
 import managers.MessagingManager;
@@ -63,7 +64,7 @@ public class Main {
 			System.out.println("1. Upload File");
 			System.out.println("2. Logout");
 		}
-		System.out.println("3. Quit");
+		System.out.println("4. Quit");
 		System.out.println();
 
 		int inputOption = Integer.parseInt(sc.nextLine());
@@ -114,19 +115,7 @@ public class Main {
 		}
 	}
 
-	public static void getUserRegistrationParameter() {
-		System.out.println("Please enter new user name:");
-		String userName = sc.nextLine();
-		System.out.println("Please enter your new password:");
-		String password = sc.nextLine();
 
-		System.out.println("Please enter your email:");
-		String email = sc.nextLine();
-
-
-		sendCreateAccountMessage(userName, password, email);
-		waitForNetworking();
-	}
 
 	private static void registerTLS() {
 		// TODO Auto-generated method stub
@@ -140,7 +129,7 @@ public class Main {
 		processing = true;
 	}
 
-	private static void createAccount() {
+	public static void getUserRegistrationParameter() {
 		System.out.println("Please enter new user name:");
 		String userName = sc.nextLine();
 		System.out.println("Please enter your new password:");
@@ -149,9 +138,10 @@ public class Main {
 		System.out.println("Please enter your email:");
 		String email = sc.nextLine();
 
-		sendCreateAccountMessage(userName, password, email);
 
-		waitForNetworking();
+		sendCreateAccountMessage(userName, password, email);
+		processing = false;
+
 	}
 
 	private static void login() {
@@ -205,19 +195,20 @@ public class Main {
 		networkMessage.setType(MessageType.CREATE_USER);
 		networkMessage.setActor(userName);
 
+		String randomSalt = new String (Crypto.generateRandomSalt());
+		byte[] initVector = Crypto.getInitVector();
+		int iterations = Crypto.getRandomIterations();
+		String secretKey = Crypto.saltPassword(randomSalt, messagingManager.getCommunication().getRegisterPassword(), iterations);
 
-
-
-
-
-
-
-
-
-
-		// Maybe use salting here as well?
+		// here we generate password hash and encrypt it
 		String passwordHash = Crypto.generateHash(password);
-		networkMessage.setPasswordHash(passwordHash);
+		String encryptedPass = Crypto.encryptAES256(passwordHash, initVector, secretKey);
+
+		networkMessage.setIterations(iterations);
+		networkMessage.setSalt(Base64.getEncoder().encodeToString(randomSalt.getBytes()));
+		networkMessage.setInitVector(Base64.getEncoder().encodeToString(initVector));
+		networkMessage.setPassword(Base64.getEncoder().encodeToString(encryptedPass.getBytes()));
+
 		networkMessage.setEmail(email);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
@@ -235,7 +226,7 @@ public class Main {
 				Crypto.generateHash(password), randomIterations) ;
 		String encodedPassBase64 = Base64.getEncoder().encodeToString(saltedPass.getBytes());
 
-		networkMessage.setPasswordHash(encodedPassBase64);
+		networkMessage.setPassword(encodedPassBase64);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 	}

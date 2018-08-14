@@ -70,7 +70,7 @@ public class ClientCommunication extends Communication {
 			salt = new String (Base64.getDecoder().decode(saltEncodedBase64.getBytes()));
 
 			int iterations = Integer.valueOf(networkMessage.getIterations());
-			String registerPassword = Crypto.saltPassword(salt, ConstantsFTP.REGISTRATION_PASS, iterations);
+			registerPassword = Crypto.saltPassword(salt, ConstantsFTP.MASTER_PASS, iterations);
 
 			responseMessage = new NetworkMessage();
 			responseMessage.setType(MessageType.REGISTER_PASS);
@@ -92,6 +92,12 @@ public class ClientCommunication extends Communication {
 			Main.getUserRegistrationParameter();
 			break;
 
+		case AUTHENTICATION_FAILED:
+				logger.info("Master password is not correct");
+
+				closeCommunication();
+				break;
+
 		case STATUS_RESPONSE:
 			handleStatusResponse(networkMessage);
 			break;
@@ -104,21 +110,27 @@ public class ClientCommunication extends Communication {
 		NetworkMessage request = pendingRequests.get(statusResponse.getMessageId());
 
 		switch (request.getType()) {
-//		case CREATE_USER:
-//			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-//				// TODO
-//			} else {
-//				// TODO Error in UI.
-//			}
-//
-//			notifyUiThread();
-//			break;
+
 		case CREATE_USER:
 			if (statusResponse.getStatus() != NetworkMessage.STATUS_OK) {
 				User currentUser = new User();
 				UserManager.getInstance().setUser(currentUser);
-				System.out.println("set user!");
 				processing = false;
+			} else {
+				// TODO Error in UI.
+			}
+			break;
+		case REGISTRATION_FAILED:
+			logger.info("Wrong username or password. Try again.");
+			System.out.println("Password or username is not correct. Try again.");
+			processing = false;
+			break;
+
+		case LOGIN:
+
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				User currentUser = new User();
+				UserManager.getInstance().setUser(currentUser);
 			} else {
 				// TODO Error in UI.
 			}
