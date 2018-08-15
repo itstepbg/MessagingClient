@@ -3,6 +3,7 @@ package networking;
 import java.net.Socket;
 import java.util.logging.Logger;
 
+import library.models.data.Directory;
 import library.models.data.User;
 import library.models.network.NetworkMessage;
 import library.networking.Communication;
@@ -134,11 +135,12 @@ public class ClientCommunication extends Communication {
 			notifyUiThread();
 			break;
 		case LIST_FILES:
-<<<<<<< HEAD
+
 			listFiles = new Directory();
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
-				listFiles = statusResponse.getListFiles();
-				logger.info("The file was renamed successfully.");
+				listFiles = statusResponse.getFileList();
+				System.out.println("");
+				System.out.println("These are all your directories and files: ");
 			} else {
 				logger.info("Could not print the information requested!");
 			}
@@ -146,11 +148,6 @@ public class ClientCommunication extends Communication {
 			listFiles.printDirectories();
 			listFiles.printFiles();
 
-=======
-			listFiles = statusResponse.getFileList();
-
-			listFiles.printDirectories();
-			listFiles.printFiles();
 			notifyUiThread();
 			break;
 		case LIST_FILES_SHARED_BY_YOU:
@@ -161,7 +158,7 @@ public class ClientCommunication extends Communication {
 		case LIST_FILES_SHARED_WITH_YOU:
 			listFiles = statusResponse.getFileList();
 			listFiles.printFilesSharedWithYou();
->>>>>>> implemented handling for lists of shared files
+
 			notifyUiThread();
 			break;
 		case SHARE_FILE:
