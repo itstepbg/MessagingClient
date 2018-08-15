@@ -3,7 +3,6 @@ package networking;
 import java.net.Socket;
 import java.util.logging.Logger;
 
-import library.models.data.Directory;
 import library.models.data.User;
 import library.models.network.NetworkMessage;
 import library.networking.Communication;
@@ -102,7 +101,7 @@ public class ClientCommunication extends Communication {
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				logger.info("The file was deleted successfully");
 			} else {
-				logger.info("The file that you're trying to delete doesn't exists!");
+				logger.info("The file that you're trying to delete doesn't exist!");
 			}
 
 			notifyUiThread();
@@ -135,6 +134,7 @@ public class ClientCommunication extends Communication {
 			notifyUiThread();
 			break;
 		case LIST_FILES:
+<<<<<<< HEAD
 			listFiles = new Directory();
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				listFiles = statusResponse.getListFiles();
@@ -146,6 +146,22 @@ public class ClientCommunication extends Communication {
 			listFiles.printDirectories();
 			listFiles.printFiles();
 
+=======
+			listFiles = statusResponse.getFileList();
+
+			listFiles.printDirectories();
+			listFiles.printFiles();
+			notifyUiThread();
+			break;
+		case LIST_FILES_SHARED_BY_YOU:
+			listFiles = statusResponse.getFileList();
+			listFiles.printFilesSharedByYou();
+			notifyUiThread();
+			break;
+		case LIST_FILES_SHARED_WITH_YOU:
+			listFiles = statusResponse.getFileList();
+			listFiles.printFilesSharedWithYou();
+>>>>>>> implemented handling for lists of shared files
 			notifyUiThread();
 			break;
 		case SHARE_FILE:
@@ -178,6 +194,8 @@ public class ClientCommunication extends Communication {
 		case UPLOAD_FILE:
 		case DOWNLOAD_FILE:
 		case LIST_FILES:
+		case LIST_FILES_SHARED_BY_YOU:
+		case LIST_FILES_SHARED_WITH_YOU:
 		case SHARE_FILE:
 			addPendingRequest(networkMessage);
 			break;
