@@ -1,13 +1,16 @@
 package networking;
 
 import java.net.Socket;
+import java.util.logging.Logger;
 
 import library.models.data.User;
 import library.models.network.NetworkMessage;
 import library.networking.Communication;
+import library.util.MessagingLogger;
 import managers.UserManager;
 
 public class ClientCommunication extends Communication {
+	private static Logger logger = MessagingLogger.getLogger();
 
 	private Object uiLock = null;
 
@@ -66,9 +69,37 @@ public class ClientCommunication extends Communication {
 		case UPLOAD_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				startFileUpload();
+				logger.info("File successfully uploaded.");
 			} else {
 				clearFileUploadThread();
-				// TODO Error in UI.
+				logger.info("File failed uploading.");
+			}
+
+			notifyUiThread();
+			break;
+		case CREATE_DIRECTORY:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				logger.info("Directory successfully created.");
+			} else {
+				logger.info("Directory already exists.");
+			}
+
+			notifyUiThread();
+			break;
+		case DELETE_FILE:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				logger.info("The file was deleted successfully”");
+			} else {
+				logger.info("The file that you're trying to delete doesn't exists!");
+			}
+
+			notifyUiThread();
+			break;
+		case COPY_FILE:
+			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
+				logger.info("The file was copied successfully.”");
+			} else {
+				logger.info("The file that you're trying to copy already exists!");
 			}
 
 			notifyUiThread();
@@ -86,6 +117,9 @@ public class ClientCommunication extends Communication {
 		case CREATE_USER:
 		case LOGIN:
 		case LOGOUT:
+		case CREATE_DIRECTORY:
+		case DELETE_FILE:
+		case COPY_FILE:
 		case UPLOAD_FILE:
 			addPendingRequest(networkMessage);
 			break;

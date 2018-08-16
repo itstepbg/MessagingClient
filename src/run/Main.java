@@ -44,10 +44,13 @@ public class Main {
 			System.out.println("2. Login");
 		} else {
 			// TODO Add missing file functionalities.
+			System.out.println("0. Create new directory");
 			System.out.println("1. Upload File");
-			System.out.println("2. Logout");
+			System.out.println("2. Delete File");
+			System.out.println("3. Copy File");
+			System.out.println("4. Logout");
 		}
-		System.out.println("3. Quit");
+		System.out.println("5. Quit");
 		System.out.println();
 
 		int inputOption = Integer.parseInt(sc.nextLine());
@@ -76,13 +79,22 @@ public class Main {
 			}
 		} else {
 			switch (inputOption) {
+			case 0:
+				createNewDirectory();
+				break;
 			case 1:
 				uploadFile();
 				break;
 			case 2:
-				logout();
+				deleteFile();
 				break;
 			case 3:
+				copyFile();
+				break;
+			case 4:
+				logout();
+				break;
+			case 5:
 				quit();
 				break;
 			default:
@@ -145,6 +157,55 @@ public class Main {
 		networkMessage.setFilePath(Paths.get(filePath).getFileName().toString());
 
 		messagingManager.getCommunication().createFileUploadThread(filePath);
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void createNewDirectory() {
+		System.out.println("Please enter directory name:");
+		String folderName = sc.nextLine();
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.CREATE_DIRECTORY);
+		networkMessage.setFilePath(folderName);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void deleteFile() {
+		System.out.println("Select file to delete:");
+		String filePath = sc.nextLine();
+
+		filePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.DELETE_FILE);
+		networkMessage.setFilePath(filePath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void copyFile() {
+		System.out.println("Select file to copy :");
+		String sourcePath = sc.nextLine();
+
+		sourcePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		System.out.println("Select a directory in which you'd like to paste the file :");
+		String targetPath = sc.nextLine();
+
+		targetPath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.COPY_FILE);
+		networkMessage.setFilePath(sourcePath);
+		networkMessage.setNewFilePath(targetPath);
+
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
 		waitForNetworking();
