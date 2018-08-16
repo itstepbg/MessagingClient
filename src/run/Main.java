@@ -48,9 +48,16 @@ public class Main {
 			System.out.println("1. Upload File");
 			System.out.println("2. Delete File");
 			System.out.println("3. Copy File");
-			System.out.println("4. Logout");
+			System.out.println("4. Move File");
+			System.out.println("5. Rename File");
+			System.out.println("6. Download File");
+			System.out.println("7. List Files");
+			System.out.println("8. Share File");
+			System.out.println("9. List all files shared by you.");
+			System.out.println("10. List all files shared with you.");
+			System.out.println("11. Logout");
 		}
-		System.out.println("5. Quit");
+		System.out.println("12. Quit");
 		System.out.println();
 
 		int inputOption = Integer.parseInt(sc.nextLine());
@@ -92,9 +99,30 @@ public class Main {
 				copyFile();
 				break;
 			case 4:
-				logout();
+				moveFile();
 				break;
 			case 5:
+				renameFile();
+				break;
+			case 6:
+				downloadFile();
+				break;
+			case 7:
+				listFiles();
+				break;
+			case 8:
+				shareFile();
+				break;
+			case 9:
+				listFilesSharedByYou();
+				break;
+			case 10:
+				listFilesSharedWithYou();
+				break;
+			case 11:
+				logout();
+				break;
+			case 12:
 				quit();
 				break;
 			default:
@@ -113,6 +141,24 @@ public class Main {
 		String email = sc.nextLine();
 
 		sendCreateAccountMessage(userName, password, email);
+
+		waitForNetworking();
+	}
+
+	private static void shareFile() {
+		System.out.println("Please enter user name you want to share file with:");
+		String userNameSharedTo = sc.nextLine();
+		System.out.println("Please enter file path of the file you want to share:");
+		String filePath = sc.nextLine();
+
+		NetworkMessage networkMessage = new NetworkMessage();
+
+		networkMessage.setType(MessageType.SHARE_FILE);
+		networkMessage.setUser(userNameSharedTo);
+		networkMessage.setFilePath(filePath);
+		networkMessage.setFileName(Paths.get(filePath).getFileName().toString());
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
 
 		waitForNetworking();
 	}
@@ -144,19 +190,37 @@ public class Main {
 	}
 
 	private static void uploadFile() {
-		System.out.println("Select file to upload:");
-		String filePath = sc.nextLine();
+		System.out.println("Select file to upload from local path:");
+		String downloadFromfilePath = sc.nextLine();
 
-		// TODO Check whether the file exists.
-		// TODO Choose remote folder.
-
-		filePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+		System.out.println("Select file to upload to remote path:");
+		String uploadTofilePath = sc.nextLine();
+		downloadFromfilePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
 
 		NetworkMessage networkMessage = new NetworkMessage();
 		networkMessage.setType(MessageType.UPLOAD_FILE);
-		networkMessage.setFilePath(Paths.get(filePath).getFileName().toString());
+		networkMessage.setFilePath(Paths.get(uploadTofilePath).toString());
 
-		messagingManager.getCommunication().createFileUploadThread(filePath);
+		messagingManager.getCommunication().createFileUploadThread(downloadFromfilePath);
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void downloadFile() {
+		System.out.println("Select file to download from remote path:");
+		String filePath = sc.nextLine();
+
+		filePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		System.out.println("Select file to download to local path:");
+		String localPath = sc.nextLine();
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.DOWNLOAD_FILE);
+		networkMessage.setFilePath(filePath);
+
+		messagingManager.getCommunication().createFileDownloadThread(localPath);
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
 		waitForNetworking();
@@ -205,6 +269,76 @@ public class Main {
 		networkMessage.setType(MessageType.COPY_FILE);
 		networkMessage.setFilePath(sourcePath);
 		networkMessage.setNewFilePath(targetPath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void moveFile() {
+		System.out.println("Enter directory/file name you want to move :");
+		String sourcePath = sc.nextLine();
+
+		sourcePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		System.out.println("Enter directory/file name in which you'd like to move the file :");
+		String targetPath = sc.nextLine();
+
+		targetPath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.MOVE_FILE);
+		networkMessage.setFilePath(sourcePath);
+		networkMessage.setNewFilePath(targetPath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void renameFile() {
+		System.out.println("Enter directory/file name you want to rename :");
+		String path = sc.nextLine();
+
+		path.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		System.out.println("Enter directory and the new file name with which to rename the file :");
+		String newPath = sc.nextLine();
+
+		newPath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.RENAME_FILE);
+		networkMessage.setFilePath(path);
+		networkMessage.setNewFilePath(newPath);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void listFiles() {
+
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.LIST_FILES);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void listFilesSharedWithYou() {
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.LIST_FILES_SHARED_WITH_YOU);
+
+		messagingManager.getCommunication().sendMessage(networkMessage);
+
+		waitForNetworking();
+	}
+
+	private static void listFilesSharedByYou() {
+		NetworkMessage networkMessage = new NetworkMessage();
+		networkMessage.setType(MessageType.LIST_FILES_SHARED_BY_YOU);
 
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
