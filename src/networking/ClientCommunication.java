@@ -164,8 +164,10 @@ public class ClientCommunication extends Communication {
 		case SHARE_FILE:
 			if (statusResponse.getStatus() == NetworkMessage.STATUS_OK) {
 				logger.info("The file was shared successfully.");
+			} else if (statusResponse.getStatus() == NetworkMessage.STATUS_NON_EXISTING_USER) {
+				logger.info("The user that you are trying to share the file doesn't exist.");
 			} else {
-				logger.info("The file that you're trying to share already exists!");
+				logger.info("The file that you want to share doesn't exist in your remote directory!");
 			}
 
 			notifyUiThread();
