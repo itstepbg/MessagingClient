@@ -229,6 +229,7 @@ public class Main {
 	}
 
 	private static void uploadFile() {
+
 		System.out.println("Select file to upload from local path:");
 		String downloadFromfilePath = sc.nextLine();
 
@@ -236,11 +237,23 @@ public class Main {
 		String uploadTofilePath = sc.nextLine();
 		downloadFromfilePath.replaceAll("[/\\\\]+", Matcher.quoteReplacement(System.getProperty("file.separator")));
 
+		String randomSalt = new String (Crypto.generateRandomSalt());
+		byte[] initVector = Crypto.getInitVector();
+		int iterations = Crypto.getRandomIterations();
+		String userPasswordHash = UserManager.getInstance().getUser().getPasswordHash();
+		String secretKey = Crypto.saltPassword(randomSalt, userPasswordHash, iterations);
+
+		System.out.println("Secret key: "+ secretKey);
+
 		NetworkMessage networkMessage = new NetworkMessage();
 		networkMessage.setType(MessageType.UPLOAD_FILE);
 		networkMessage.setFilePath(Paths.get(uploadTofilePath).toString());
+		networkMessage.setIterations(iterations);
+		networkMessage.setSalt(Base64.getEncoder().encodeToString(randomSalt.getBytes()));
+		networkMessage.setInitVector(Base64.getEncoder().encodeToString(initVector));
 
-		messagingManager.getCommunication().createFileUploadThread(downloadFromfilePath);
+
+		messagingManager.getCommunication().createFileUploadThread(downloadFromfilePath, secretKey, initVector  );
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
 		waitForNetworking();
@@ -255,11 +268,22 @@ public class Main {
 		System.out.println("Select file to download to local path:");
 		String localPath = sc.nextLine();
 
+
+		String randomSalt = new String (Crypto.generateRandomSalt());
+		byte[] initVector = Crypto.getInitVector();
+		int iterations = Crypto.getRandomIterations();
+		String userPasswordHash = UserManager.getInstance().getUser().getPasswordHash();
+		String secretKey = Crypto.saltPassword(randomSalt, userPasswordHash, iterations);
+
 		NetworkMessage networkMessage = new NetworkMessage();
 		networkMessage.setType(MessageType.DOWNLOAD_FILE);
 		networkMessage.setFilePath(filePath);
 
-		messagingManager.getCommunication().createFileDownloadThread(localPath);
+		networkMessage.setIterations(iterations);
+		networkMessage.setSalt(Base64.getEncoder().encodeToString(randomSalt.getBytes()));
+		networkMessage.setInitVector(Base64.getEncoder().encodeToString(initVector));
+
+		messagingManager.getCommunication().createFileDownloadThread(localPath, secretKey, initVector);
 		messagingManager.getCommunication().sendMessage(networkMessage);
 
 		waitForNetworking();
